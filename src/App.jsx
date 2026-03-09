@@ -62,31 +62,6 @@ const services = [
       ]
     },
     image: "https://images.unsplash.com/photo-1607860108855-64acf2078ed9?q=80&w=1000&auto=format&fit=crop"
-  },
-  {
-    id: 3,
-    name: "Standard Detail",
-    description: "Exterior-Focused Detail",
-    pricing: {
-      small: 216,
-      medium: 233,
-      large: 250
-    },
-    includes: {
-      exterior: [
-        "Deep Clean Wheels/Tires",
-        "Bug/Tar Removal",
-        "Iron Decontamination",
-        "Hand Wash, Clay Bar Treatment/Blow Dry",
-        "Sealant/Carnauba Wax Application",
-        "Tire/Black Trim Dressing",
-        "Door, Trunk Jambs/Gas Cap Cleaning",
-        "Window Cleaning (Inside/Out)",
-        "Interior Vacuum/Wipe Down"
-      ]
-    },
-    note: "Not ideal for first-time details. For best results, start with a Full Detail",
-    image: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=2070&auto=format&fit=crop"
   }
 ];
 
@@ -312,7 +287,7 @@ function App() {
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center">
             <img 
-              src="https://storage.googleapis.com/hostinger-horizons-assets-prod/efc9cf05-dae7-4dfe-a9b2-fa36965cab51/182d8f5d2eafcb105a308a23928b143d.jpg" 
+              src="/image.png" 
               alt="Plan A Auto Spa Logo" 
               className="h-12 mr-3"
             />
@@ -453,7 +428,7 @@ function App() {
             </p>
           </div>
           
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             {services.map((service) => (
               <motion.div
                 key={service.id}
@@ -803,7 +778,7 @@ function App() {
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center mb-4 md:mb-0">
               <img 
-                src="https://storage.googleapis.com/hostinger-horizons-assets-prod/efc9cf05-dae7-4dfe-a9b2-fa36965cab51/182d8f5d2eafcb105a308a23928b143d.jpg" 
+                src="/image.png" 
                 alt="Plan A Auto Spa Logo" 
                 className="h-10 mr-3"
               />
