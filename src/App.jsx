@@ -612,9 +612,9 @@ function App() {
               </div>
               
               <div className="rounded-lg overflow-hidden shadow-lg">
-                <img 
-                  src="https://images.unsplash.com/photo-1635260409896-f8e5c5d10a4e?q=80&w=1974&auto=format&fit=crop" 
-                  alt="Mobile car detailing service" 
+                <img
+                  src="/image.png"
+                  alt="Mobile car detailing service"
                   className="w-full h-full object-cover"
                 />
               </div>
