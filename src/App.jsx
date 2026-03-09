@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, Car, Clock, MapPin, Menu, Phone, X } from 'lucide-react';
+import { Calendar, Car, Clock, MapPin, Menu, Phone, X, Star, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from './components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './components/ui/dialog';
@@ -93,21 +93,76 @@ const services = [
 const maintenancePrograms = [
   {
     id: 1,
-    name: "Bi-Weekly",
-    description: "Better Price Value!",
-    price: "$80 every 2 weeks"
+    name: "Monthly Maintenance",
+    description: "",
+    price: "$150"
   },
   {
     id: 2,
-    name: "Monthly",
+    name: "Quarterly Maintenance",
     description: "",
-    price: "$180 once a month"
+    price: "$220"
   }
 ];
 
 const timeSlots = [
-  "9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", 
+  "9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM",
   "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM"
+];
+
+const reviews = [
+  {
+    id: 1,
+    name: "Michael T.",
+    stars: 5,
+    review: "PLAN A Auto Spa did an amazing job on my SUV! They came right to my house and the car looked brand new. Highly recommend!"
+  },
+  {
+    id: 2,
+    name: "Sarah L.",
+    stars: 5,
+    review: "So convenient and professional! My car hasn't looked this clean since I bought it. Will definitely be booking monthly maintenance."
+  },
+  {
+    id: 3,
+    name: "James R.",
+    stars: 5,
+    review: "Best mobile detailing service in the area. On time, thorough, and great value for the price. 10/10!"
+  },
+  {
+    id: 4,
+    name: "Amanda K.",
+    stars: 5,
+    review: "I was skeptical at first but WOW. They transformed my car completely. The team was friendly and efficient. Booking again next month!"
+  }
+];
+
+const faqs = [
+  {
+    id: 1,
+    question: "Do you come to my location?",
+    answer: "Yes. PLAN A Auto Spa is a mobile auto detailing service, meaning we come directly to your home, office, or preferred location for your convenience."
+  },
+  {
+    id: 2,
+    question: "How often should I detail my car?",
+    answer: "Most vehicles benefit from a full detail every 3–6 months. Many customers choose our monthly maintenance service to keep their car consistently clean."
+  },
+  {
+    id: 3,
+    question: "How long does a full detail take?",
+    answer: "A full detail typically takes 3–5 hours, depending on the vehicle's size and condition."
+  },
+  {
+    id: 4,
+    question: "Do you need water or electricity?",
+    answer: "Our mobile setup is fully equipped, so we usually do not require water or electricity. However, access to them can sometimes help speed up the process."
+  },
+  {
+    id: 5,
+    question: "How do I book an appointment?",
+    answer: "You can easily book by calling, texting, or filling out the booking form on our website. We'll confirm your appointment and come directly to your location."
+  }
 ];
 
 // Function to generate Google Calendar event link
@@ -154,6 +209,7 @@ function App() {
     specialRequests: ""
   });
   const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const [expandedFaq, setExpandedFaq] = useState(null);
   const { toast } = useToast();
 
   const handleInputChange = (e) => {
@@ -567,8 +623,106 @@ function App() {
         </div>
       </section>
       
+      {/* Reviews Section */}
+      <section id="reviews" className="py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-primary mb-4">What Our Customers Say</h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              Don't just take our word for it. Here's what our satisfied customers have to say about our services.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {reviews.map((review) => (
+              <motion.div
+                key={review.id}
+                className="bg-white rounded-lg shadow-lg p-6 border border-gray-200"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: review.id * 0.1 }}
+              >
+                <div className="flex items-center mb-3">
+                  {[...Array(review.stars)].map((_, i) => (
+                    <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                  ))}
+                </div>
+                <p className="text-gray-700 mb-4">{review.review}</p>
+                <p className="font-bold text-primary">{review.name}</p>
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="text-center">
+            <a
+              href="https://share.google/W4xxoJTod11JOjV57"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Button
+                size="lg"
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
+                <Star className="h-5 w-5 mr-2 fill-white" />
+                Leave Us a Google Review
+              </Button>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section id="faq" className="py-16 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-primary mb-4">Frequently Asked Questions</h2>
+              <p className="text-gray-600">
+                Got questions? We've got answers!
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              {faqs.map((faq) => (
+                <div
+                  key={faq.id}
+                  className="bg-white rounded-lg shadow-md overflow-hidden"
+                >
+                  <button
+                    className="w-full text-left p-6 flex justify-between items-center hover:bg-gray-50 transition-colors"
+                    onClick={() => setExpandedFaq(expandedFaq === faq.id ? null : faq.id)}
+                  >
+                    <h3 className="text-lg font-bold text-primary pr-4">{faq.question}</h3>
+                    {expandedFaq === faq.id ? (
+                      <ChevronUp className="h-5 w-5 text-primary flex-shrink-0" />
+                    ) : (
+                      <ChevronDown className="h-5 w-5 text-primary flex-shrink-0" />
+                    )}
+                  </button>
+                  {expandedFaq === faq.id && (
+                    <div className="px-6 pb-6">
+                      <p className="text-gray-700">{faq.answer}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <div className="text-center mt-12">
+              <Button
+                size="lg"
+                onClick={() => setBookingOpen(true)}
+              >
+                Book Now
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Contact Section */}
-      <section id="contact" className="py-16 bg-gray-50">
+      <section id="contact" className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
@@ -577,7 +731,7 @@ function App() {
                 Have questions? Get in touch with our team.
               </p>
             </div>
-            
+
             <div className="bg-white rounded-lg shadow-lg overflow-hidden">
               <div className="p-6">
                 <div className="grid md:grid-cols-2 gap-8">
@@ -591,7 +745,7 @@ function App() {
                           <p className="text-gray-600">(626) 224-6127</p>
                         </div>
                       </div>
-                      
+
                       <div className="flex items-start">
                         <MapPin className="h-5 w-5 text-primary mr-3 mt-0.5" />
                         <div>
@@ -599,7 +753,7 @@ function App() {
                           <p className="text-gray-600">Greater San Dimas</p>
                         </div>
                       </div>
-                      
+
                       <div className="flex items-start">
                         <Clock className="h-5 w-5 text-primary mr-3 mt-0.5" />
                         <div>
@@ -610,7 +764,7 @@ function App() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div>
                     <h3 className="text-xl font-bold text-primary mb-4">Quick Message</h3>
                     <form className="space-y-4">
@@ -618,21 +772,21 @@ function App() {
                         <Label htmlFor="name">Name</Label>
                         <Input id="name" placeholder="Your name" />
                       </div>
-                      
+
                       <div>
                         <Label htmlFor="email">Email</Label>
                         <Input id="email" type="email" placeholder="Your email" />
                       </div>
-                      
+
                       <div>
                         <Label htmlFor="message">Message</Label>
-                        <textarea 
-                          id="message" 
+                        <textarea
+                          id="message"
                           className="w-full min-h-[100px] p-2 border border-gray-300 rounded-md"
                           placeholder="How can we help you?"
                         ></textarea>
                       </div>
-                      
+
                       <Button className="w-full">Send Message</Button>
                     </form>
                   </div>
