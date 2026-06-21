@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, Car, Clock, MapPin, Menu, Phone, X, Star, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from './components/ui/button';
@@ -33,11 +33,12 @@ const services = [
       ],
       interior: [
         "Interior Blowout/Deep Vacuum",
-        "Shampoo Seats, Carpets, Headliner/Floor Mats",
+        "Shampoo Seats, Carpets, Floor Mats",
         "Scrub/Condition Doors, Plastics, Dash, Cup Holders/Center Console",
         "Odor Elimination",
         "Door, Trunk Jambs/Gas Cap Cleaning",
-        "Window Cleaning (Inside/Out)"
+        "Window Cleaning (Inside/Out)",
+        "Excludes Headliner"
       ]
     },
     image: "https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?q=80&w=2071&auto=format&fit=crop"
@@ -52,13 +53,18 @@ const services = [
       large: 250
     },
     includes: {
+      exterior: [
+        "Hand Wash / Blow Dry",
+        "Clean/Dress Tires"
+      ],
       interior: [
-        "Interior Blowout/Deep Vacuum",
-        "Shampoo Seats, Carpets, Headliner/Mats",
-        "Scrub/Condition Doors, Plastics, Dash, Cup Holders/Center Console",
+        "Deep Thorough Vacuum",
+        "Shampoo Seats, Carpets, Mats",
+        "Meticulously Scrub/Condition Doors, Plastics, Dash, Cup Holders, Center Console",
         "Odor Elimination",
         "Door, Trunk Jambs",
-        "Window Cleaning (Inside/Out)"
+        "Window Cleaning (Inside/Out)",
+        "Excludes Headliner"
       ]
     },
     image: "https://images.unsplash.com/photo-1607860108855-64acf2078ed9?q=80&w=1000&auto=format&fit=crop"
@@ -140,6 +146,29 @@ const faqs = [
   }
 ];
 
+const beforeAfterImages = [
+  {
+    id: 1,
+    before: "/before-1.jpeg",
+    after: "/after-1.jpeg"
+  },
+  {
+    id: 2,
+    before: "/before-2.jpeg",
+    after: "/after-2.jpeg"
+  }
+];
+
+const workImages = [
+  { id: 1, src: "/work-image-1.jpeg", alt: "Professional car detailing work" },
+  { id: 2, src: "/work-image-2.jpeg", alt: "Interior detailing results" },
+  { id: 3, src: "/work-image-3.jpeg", alt: "Exterior wash and wax" },
+  { id: 4, src: "/work-image-4.jpeg", alt: "Premium car care service" },
+  { id: 5, src: "/work-image-5.jpeg", alt: "Mobile detailing excellence" },
+  { id: 6, src: "/work-image-6.jpeg", alt: "Complete vehicle transformation" },
+  { id: 7, src: "/work-image-7.jpeg", alt: "Professional auto spa results" }
+];
+
 // Function to generate Google Calendar event link
 function getGoogleCalendarUrl({ service, date, time, name, address, vehicleInfo, specialRequests }) {
   if (!date || !time) return '';
@@ -166,6 +195,149 @@ function getGoogleCalendarUrl({ service, date, time, name, address, vehicleInfo,
   });
 
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+
+// Before/After Slider Component
+function BeforeAfterSlider({ beforeImage, afterImage }) {
+  const [sliderPosition, setSliderPosition] = useState(50);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isHovering, setIsHovering] = useState(false);
+  const containerRef = useRef(null);
+
+  const handleMove = (clientX) => {
+    if (!containerRef.current) return;
+    
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = clientX - rect.left;
+    const percentage = (x / rect.width) * 100;
+    
+    setSliderPosition(Math.min(Math.max(percentage, 0), 100));
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (!isDragging) return;
+      e.preventDefault();
+      handleMove(e.clientX);
+    };
+
+    const handleTouchMove = (e) => {
+      if (!isDragging) return;
+      e.preventDefault();
+      handleMove(e.touches[0].clientX);
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove, { passive: false });
+      document.addEventListener('touchmove', handleTouchMove, { passive: false });
+      document.addEventListener('mouseup', handleMouseUp);
+      document.addEventListener('touchend', handleMouseUp);
+      document.body.style.cursor = 'ew-resize';
+    } else {
+      document.body.style.cursor = '';
+    }
+    
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('touchend', handleMouseUp);
+      document.body.style.cursor = '';
+    };
+  }, [isDragging]);
+
+  return (
+    <div
+      ref={containerRef}
+      className="relative w-full h-[450px] md:h-[550px] overflow-hidden rounded-xl shadow-2xl cursor-ew-resize select-none group"
+      onMouseDown={() => setIsDragging(true)}
+      onTouchStart={() => setIsDragging(true)}
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
+    >
+      {/* After Image (Base) */}
+      <div className="absolute inset-0">
+        <img
+          src={afterImage}
+          alt="After detailing"
+          className="w-full h-full object-cover"
+          draggable="false"
+        />
+      </div>
+      
+      {/* Before Image (Clipped) */}
+      <div
+        className="absolute inset-0 overflow-hidden"
+        style={{ 
+          width: `${sliderPosition}%`,
+          boxShadow: '2px 0 8px rgba(0, 0, 0, 0.3)'
+        }}
+      >
+        <img
+          src={beforeImage}
+          alt="Before detailing"
+          className="absolute inset-0 object-cover"
+          style={{ 
+            width: containerRef.current ? `${containerRef.current.offsetWidth}px` : '100%',
+            height: '100%'
+          }}
+          draggable="false"
+        />
+      </div>
+      
+      {/* Slider Line and Handle */}
+      <div
+        className="absolute top-0 bottom-0 w-0.5 bg-white"
+        style={{ 
+          left: `${sliderPosition}%`, 
+          transform: 'translateX(-50%)',
+          boxShadow: '0 0 10px rgba(0, 0, 0, 0.5)'
+        }}
+      >
+        {/* Compact Handle */}
+        <div 
+          className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 transition-all duration-200 ${
+            isDragging ? 'scale-110' : isHovering ? 'scale-105' : 'scale-100'
+          }`}
+        >
+          <div className="relative">
+            {/* Handle container - smaller size */}
+            <div className="relative w-12 h-12 bg-white rounded-full shadow-xl flex items-center justify-center border-2 border-gray-200">
+              {/* Arrows */}
+              <div className="relative flex items-center gap-0.5">
+                <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Simple Labels */}
+      <div className="absolute top-6 left-6 bg-white/90 text-gray-800 px-3 py-1.5 rounded-md shadow-lg text-sm font-semibold backdrop-blur-sm">
+        BEFORE
+      </div>
+      
+      <div className="absolute top-6 right-6 bg-white/90 text-gray-800 px-3 py-1.5 rounded-md shadow-lg text-sm font-semibold backdrop-blur-sm">
+        AFTER
+      </div>
+      
+      {/* Instruction hint - shows when at middle position */}
+      {sliderPosition === 50 && !isDragging && (
+        <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-black/70 text-white px-4 py-2 rounded-full text-sm font-medium animate-pulse backdrop-blur-sm">
+          ← Drag to compare →
+        </div>
+      )}
+    </div>
+  );
 }
 
 function App() {
@@ -300,6 +472,7 @@ function App() {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-6">
             <a href="#services" className="hover:text-blue-200 transition-colors">Services</a>
+            <a href="#gallery" className="hover:text-blue-200 transition-colors">Our Work</a>
             <a href="#maintenance" className="hover:text-blue-200 transition-colors">Maintenance</a>
             <a href="#about" className="hover:text-blue-200 transition-colors">About Us</a>
             <a href="#contact" className="hover:text-blue-200 transition-colors">Contact</a>
@@ -336,6 +509,13 @@ function App() {
               onClick={() => setMobileMenuOpen(false)}
             >
               Services
+            </a>
+            <a 
+              href="#gallery" 
+              className="text-lg py-2 border-b border-gray-200"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Our Work
             </a>
             <a 
               href="#maintenance" 
@@ -507,6 +687,86 @@ function App() {
         </div>
       </section>
       
+      {/* Before & After Gallery */}
+      <section id="gallery" className="py-20 bg-gradient-to-b from-gray-50 to-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <h2 className="text-4xl md:text-5xl font-bold text-primary mb-4">
+                See The Transformation
+              </h2>
+              <p className="text-gray-600 max-w-2xl mx-auto text-lg mb-2">
+                Drag the slider to reveal the incredible difference our detailing makes
+              </p>
+              <p className="text-primary font-semibold text-sm">
+                ← Slide left and right to compare →
+              </p>
+            </motion.div>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-12 max-w-7xl mx-auto">
+            {beforeAfterImages.map((image, index) => (
+              <motion.div
+                key={image.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: index * 0.2 }}
+              >
+                <BeforeAfterSlider 
+                  beforeImage={image.before}
+                  afterImage={image.after}
+                />
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+      
+      {/* Our Work Portfolio */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-primary mb-4">Recent Projects</h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              Take a look at some of our recent work. Quality results that speak for themselves.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+            {workImages.map((image, index) => (
+              <motion.div
+                key={image.id}
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="group relative overflow-hidden rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300"
+              >
+                <div className="aspect-square overflow-hidden bg-gray-200">
+                  <img
+                    src={image.src}
+                    alt={image.alt}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    loading="lazy"
+                  />
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="absolute bottom-0 left-0 right-0 p-4">
+                    <p className="text-white text-sm font-medium">{image.alt}</p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+      
       {/* Maintenance Programs */}
       <section id="maintenance" className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
@@ -599,7 +859,7 @@ function App() {
       </section>
       
       {/* Reviews Section */}
-      <section id="reviews" className="py-16 bg-white">
+      <section id="reviews" className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-primary mb-4">What Our Customers Say</h2>
@@ -648,7 +908,7 @@ function App() {
       </section>
 
       {/* FAQ Section */}
-      <section id="faq" className="py-16 bg-gray-50">
+      <section id="faq" className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto">
             <div className="text-center mb-12">
@@ -697,7 +957,7 @@ function App() {
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="py-16 bg-white">
+      <section id="contact" className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
@@ -725,7 +985,7 @@ function App() {
                         <MapPin className="h-5 w-5 text-primary mr-3 mt-0.5" />
                         <div>
                           <p className="font-semibold">Service Area</p>
-                          <p className="text-gray-600">Greater San Dimas</p>
+                          <p className="text-gray-600">Azusa, Glendora, San Dimas, Arcadia, Covina, Diamond Bar, Ontario, Pasadena, West Covina</p>
                         </div>
                       </div>
 
@@ -733,8 +993,8 @@ function App() {
                         <Clock className="h-5 w-5 text-primary mr-3 mt-0.5" />
                         <div>
                           <p className="font-semibold">Hours</p>
-                          <p className="text-gray-600">Monday - Saturday: 9AM - 6PM</p>
-                          <p className="text-gray-600">Sunday: By appointment only</p>
+                          <p className="text-gray-600">Monday - Saturday: 7 AM - 6 PM</p>
+                          <p className="text-gray-600">Sunday: 8 AM - 6 PM</p>
                         </div>
                       </div>
                     </div>
