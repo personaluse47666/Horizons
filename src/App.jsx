@@ -18,9 +18,9 @@ const services = [
     name: "Full Detail",
     description: "Our Most Popular Service!",
     pricing: {
-      small: 325,
-      medium: 350,
-      large: 375
+      small: 300,
+      medium: 325,
+      large: 350
     },
     includes: {
       exterior: [
@@ -67,7 +67,7 @@ const services = [
         "Excludes Headliner"
       ]
     },
-    image: "https://images.unsplash.com/photo-1607860108855-64acf2078ed9?q=80&w=1000&auto=format&fit=crop"
+    image: "/interior-shampoo-cover.jpeg"
   }
 ];
 
