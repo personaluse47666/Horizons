@@ -76,7 +76,7 @@ const maintenancePrograms = [
     id: 1,
     name: "Monthly Maintenance",
     description: "",
-    price: "$150"
+    price: "$120"
   },
   {
     id: 2,
