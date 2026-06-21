@@ -32,11 +32,11 @@ const services = [
         "Tire/Black Trim Dressing"
       ],
       interior: [
-        "Interior Blowout/Deep Vacuum",
-        "Shampoo Seats, Carpets, Floor Mats",
-        "Scrub/Condition Doors, Plastics, Dash, Cup Holders/Center Console",
+        "Deep Thorough Vacuum",
+        "Shampoo Seats, Carpets, Mats",
+        "Meticulously Scrub/Condition Doors, Plastics, Dash, Cup Holders, Center Console",
         "Odor Elimination",
-        "Door, Trunk Jambs/Gas Cap Cleaning",
+        "Door, Trunk Jambs",
         "Window Cleaning (Inside/Out)",
         "Excludes Headliner"
       ]
