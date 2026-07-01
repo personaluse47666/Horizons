@@ -14,6 +14,32 @@ import emailjs from 'emailjs-com';
 
 const services = [
   {
+    id: 2,
+    name: "Interior Shampoo",
+    description: "Deep Clean for Your Interior",
+    pricing: {
+      small: 200,
+      medium: 225,
+      large: 250
+    },
+    includes: {
+      exterior: [
+        "Hand Wash / Blow Dry",
+        "Clean/Dress Tires"
+      ],
+      interior: [
+        "Interior Blowout/Deep Thorough Vacuum",
+        "Shampoo Seats, Carpets, Mats",
+        "Meticulously Scrub/Condition Doors, Plastics, Dash, Cup Holders, Center Console",
+        "Odor Elimination",
+        "Door, Trunk Jambs",
+        "Window Cleaning (Inside/Out)",
+        "Excludes Headliner"
+      ]
+    },
+    image: "/interior-shampoo-cover.jpeg"
+  },
+  {
     id: 1,
     name: "Full Detail",
     description: "Our Most Popular Service!",
@@ -42,32 +68,6 @@ const services = [
       ]
     },
     image: "https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?q=80&w=2071&auto=format&fit=crop"
-  },
-  {
-    id: 2,
-    name: "Interior Shampoo",
-    description: "Deep Clean for Your Interior",
-    pricing: {
-      small: 200,
-      medium: 225,
-      large: 250
-    },
-    includes: {
-      exterior: [
-        "Hand Wash / Blow Dry",
-        "Clean/Dress Tires"
-      ],
-      interior: [
-        "Interior Blowout/Deep Thorough Vacuum",
-        "Shampoo Seats, Carpets, Mats",
-        "Meticulously Scrub/Condition Doors, Plastics, Dash, Cup Holders, Center Console",
-        "Odor Elimination",
-        "Door, Trunk Jambs",
-        "Window Cleaning (Inside/Out)",
-        "Excludes Headliner"
-      ]
-    },
-    image: "/interior-shampoo-cover.jpeg"
   }
 ];
 
