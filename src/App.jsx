@@ -14,7 +14,7 @@ import emailjs from 'emailjs-com';
 
 const services = [
   {
-    id: 2,
+    id: 1,
     name: "Interior Shampoo",
     description: "Deep Clean for Your Interior",
     pricing: {
@@ -40,7 +40,7 @@ const services = [
     image: "/interior-shampoo-cover.jpeg"
   },
   {
-    id: 1,
+    id: 2,
     name: "Full Detail",
     description: "Our Most Popular Service!",
     pricing: {
