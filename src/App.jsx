@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, Car, Clock, MapPin, Menu, Phone, X, Star, ChevronDown, ChevronUp } from 'lucide-react';
+import { Calendar, Car, Clock, MapPin, Menu, Phone, X, Star, ChevronDown, ChevronUp, Check, ShieldCheck, Sparkles, ArrowRight } from 'lucide-react';
 import { Button } from './components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './components/ui/dialog';
@@ -85,6 +85,16 @@ const maintenancePrograms = [
     price: "$220"
   }
 ];
+
+const maintenanceOptions = maintenancePrograms.map(program => {
+  const price = parseInt(program.price.replace(/\D/g, ''), 10);
+  return {
+    id: 100 + program.id,
+    name: program.name,
+    isMaintenance: true,
+    pricing: { small: price, medium: price, large: price }
+  };
+});
 
 const timeSlots = [
   "9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM",
@@ -347,6 +357,11 @@ function App() {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState("");
   const [vehicleSize, setVehicleSize] = useState("");
+  const [bookingStep, setBookingStep] = useState("service");
+
+  useEffect(() => {
+    if (bookingOpen) setBookingStep("service");
+  }, [bookingOpen]);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -406,13 +421,34 @@ function App() {
       specialRequests: formData.specialRequests,
       google_calendar_link // Add the calendar link to the email
     };
+    booking.title = `New Booking: ${booking.service}`;
+    booking.package = booking.service;
+    booking.user_name = booking.name;
+    booking.car_model = booking.vehicleInfo;
+    booking.car_number = "";
+    booking.contact_number = booking.phone;
+    booking.booking_date = booking.date;
+    booking.time_slot = booking.time;
+    booking.message = [
+      `Service: ${booking.service}`,
+      `Date: ${booking.date}`,
+      `Time: ${booking.time}`,
+      `Vehicle Size: ${booking.vehicleSize}`,
+      `Name: ${booking.name}`,
+      `Email: ${booking.email}`,
+      `Phone: ${booking.phone}`,
+      `Address: ${booking.address}`,
+      `Vehicle Info: ${booking.vehicleInfo}`,
+      `Special Requests: ${booking.specialRequests}`,
+      `Add to Google Calendar: ${google_calendar_link}`
+    ].join('\n');
 
     // Send email via EmailJS
     emailjs.send(
-      'service_yvta5u5',      // Provided EmailJS service ID
-      'template_d5baycn',     // Provided EmailJS template ID
+      'service_9k9geg9',      // Provided EmailJS service ID
+      'template_5sz9g18',     // Provided EmailJS template ID
       booking,                // The object with booking details
-      'aWrp0d6nsF_W0h2yi'     // Provided EmailJS public key
+      'ByM1yA9kYVJ9l_neP'     // Provided EmailJS public key
     ).then((result) => {
       toast({
         title: "Booking Confirmed!",
@@ -455,8 +491,8 @@ function App() {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="bg-primary text-white">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+      <header className="sticky top-0 z-40 bg-primary/95 backdrop-blur text-white shadow-lg">
+        <div className="container mx-auto px-4 py-3 flex justify-between items-center">
           <div className="flex items-center">
             <img 
               src="/image.png" 
@@ -470,13 +506,16 @@ function App() {
           </div>
           
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex space-x-6">
+          <nav className="hidden md:flex items-center space-x-6">
             <a href="#services" className="hover:text-blue-200 transition-colors">Services</a>
             <a href="#gallery" className="hover:text-blue-200 transition-colors">Our Work</a>
             <a href="#maintenance" className="hover:text-blue-200 transition-colors">Maintenance</a>
             <a href="#about" className="hover:text-blue-200 transition-colors">About Us</a>
             <a href="#contact" className="hover:text-blue-200 transition-colors">Contact</a>
-            <Button onClick={() => setBookingOpen(true)} className="bg-white text-primary hover:bg-blue-100">
+            <a href="tel:6262246127" className="hidden lg:flex items-center font-semibold hover:text-blue-200 transition-colors">
+              <Phone className="h-4 w-4 mr-2" />(626) 224-6127
+            </a>
+            <Button onClick={() => setBookingOpen(true)} className="bg-yellow-400 text-primary font-bold hover:bg-yellow-300 shadow-md">
               Book Now
             </Button>
           </nav>
@@ -552,19 +591,40 @@ function App() {
       </Dialog>
       
       {/* Hero Section */}
-      <section className="relative bg-primary text-white py-16 overflow-hidden">
+      <section className="relative bg-primary text-white py-20 md:py-32 overflow-hidden">
+        <div className="absolute inset-0">
+          <img
+            src="https://images.unsplash.com/photo-1601362840469-51e4d8d58785?q=80&w=2000&auto=format&fit=crop"
+            alt="Car being detailed"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#061a3d] via-[#0a2a5e]/90 to-[#0a2a5e]/40"></div>
+        </div>
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-2xl">
-            <motion.h1 
-              className="text-4xl md:text-5xl font-bold mb-4"
+            <motion.div
+              className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 text-sm mb-6"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <span className="flex">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                ))}
+              </span>
+              <span>5-star rated mobile detailing</span>
+            </motion.div>
+            <motion.h1
+              className="text-4xl md:text-6xl font-extrabold leading-tight mb-5"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
               Professional Mobile Car Detailing
             </motion.h1>
-            <motion.p 
-              className="text-xl mb-8"
+            <motion.p
+              className="text-lg md:text-xl text-blue-100 mb-8"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
@@ -572,32 +632,42 @@ function App() {
               We bring the car wash to you. Premium detailing services at your home or office.
             </motion.p>
             <motion.div
+              className="flex flex-col sm:flex-row gap-3"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.4 }}
             >
-              <Button 
-                size="lg" 
-                className="bg-white text-primary hover:bg-blue-100"
+              <Button
+                size="lg"
+                className="bg-yellow-400 text-primary font-bold hover:bg-yellow-300 shadow-lg h-12 px-8"
                 onClick={() => setBookingOpen(true)}
               >
-                Book Your Detail
+                Book Your Detail <ArrowRight className="h-5 w-5 ml-2" />
               </Button>
+              <a href="tel:6262246127">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="w-full bg-transparent text-white border-white/60 hover:bg-white/10 hover:text-white h-12 px-8"
+                >
+                  <Phone className="h-5 w-5 mr-2" /> Call (626) 224-6127
+                </Button>
+              </a>
+            </motion.div>
+            <motion.div
+              className="flex flex-wrap gap-x-6 gap-y-2 mt-8 text-sm text-blue-100"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.6 }}
+            >
+              <span className="flex items-center"><MapPin className="h-4 w-4 mr-1.5 text-yellow-400" />We come to you</span>
+              <span className="flex items-center"><ShieldCheck className="h-4 w-4 mr-1.5 text-yellow-400" />Satisfaction guaranteed</span>
+              <span className="flex items-center"><Clock className="h-4 w-4 mr-1.5 text-yellow-400" />Open 7 days a week</span>
             </motion.div>
           </div>
         </div>
-        <div className="absolute right-0 top-0 w-1/2 h-full opacity-20 md:opacity-30">
-          <img 
-            src="https://images.unsplash.com/photo-1601362840469-51e4d8d58785?q=80&w=1000&auto=format&fit=crop" 
-            alt="Car being detailed" 
-            className="w-full h-full object-cover"
-          />
-        </div>
       </section>
-      
-      {/* Wave Divider */}
-      <div className="wave-divider"></div>
-      
+
       {/* Services Section */}
       <section id="services" className="py-16 bg-white">
         <div className="container mx-auto px-4">
@@ -612,56 +682,60 @@ function App() {
             {services.map((service) => (
               <motion.div
                 key={service.id}
-                className="service-card bg-white rounded-lg shadow-lg overflow-hidden"
+                className={`service-card relative bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col ${service.id === 2 ? 'ring-2 ring-yellow-400' : 'border border-gray-100'}`}
                 whileHover={{ y: -5 }}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5 }}
               >
-                <div className="h-48 overflow-hidden">
-                  <img 
-                    src={service.image} 
-                    alt={service.name} 
+                <div className="relative h-52 overflow-hidden">
+                  <img
+                    src={service.image}
+                    alt={service.name}
                     className="w-full h-full object-cover"
                   />
+                  {service.id === 2 && (
+                    <span className="absolute top-4 right-4 inline-flex items-center bg-yellow-400 text-primary text-xs font-bold uppercase tracking-wide px-3 py-1 rounded-full shadow">
+                      <Sparkles className="h-3.5 w-3.5 mr-1" /> Most Popular
+                    </span>
+                  )}
                 </div>
-                <div className="p-6">
-                  <h3 className="text-2xl font-bold text-primary mb-2">#{service.id} {service.name}</h3>
-                  <p className="text-yellow-500 font-semibold mb-4">{service.description}</p>
-                  
-                  <div className="mb-4">
-                    <h4 className="font-bold text-gray-700 mb-2">Pricing:</h4>
-                    <ul className="space-y-1">
-                      <li>${service.pricing.small} Small</li>
-                      <li>${service.pricing.medium} Medium</li>
-                      <li>${service.pricing.large} Large</li>
-                    </ul>
+                <div className="p-6 flex flex-col flex-1">
+                  <h3 className="text-2xl font-bold text-primary mb-1">{service.name}</h3>
+                  <p className="text-gray-500 mb-5">{service.description}</p>
+
+                  <div className="grid grid-cols-3 gap-2 mb-6">
+                    {[['Small', service.pricing.small], ['Medium', service.pricing.medium], ['Large', service.pricing.large]].map(([size, price]) => (
+                      <div key={size} className="text-center rounded-xl bg-blue-50 py-3">
+                        <p className="text-2xl font-extrabold text-primary">${price}</p>
+                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">{size}</p>
+                      </div>
+                    ))}
                   </div>
-                  
-                  <div className="mb-4">
-                    <h4 className="font-bold text-gray-700 mb-2">Includes:</h4>
+
+                  <div className="mb-6 space-y-4">
                     {service.includes.exterior && (
-                      <div className="mb-2">
-                        <p className="font-semibold">Exterior Process:</p>
-                        <ul className="space-y-1">
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Exterior</p>
+                        <ul className="space-y-1.5">
                           {service.includes.exterior.map((item, index) => (
-                            <li key={index} className="flex items-start">
-                              <span className="checkmark">✓</span>
+                            <li key={index} className="flex items-start text-gray-700">
+                              <Check className="h-4 w-4 text-green-600 mr-2 mt-0.5 flex-shrink-0" />
                               <span>{item}</span>
                             </li>
                           ))}
                         </ul>
                       </div>
                     )}
-                    
+
                     {service.includes.interior && (
                       <div>
-                        <p className="font-semibold">Interior Process:</p>
-                        <ul className="space-y-1">
+                        <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Interior</p>
+                        <ul className="space-y-1.5">
                           {service.includes.interior.map((item, index) => (
-                            <li key={index} className="flex items-start">
-                              <span className="checkmark">✓</span>
+                            <li key={index} className="flex items-start text-gray-700">
+                              <Check className="h-4 w-4 text-green-600 mr-2 mt-0.5 flex-shrink-0" />
                               <span>{item}</span>
                             </li>
                           ))}
@@ -674,8 +748,8 @@ function App() {
                     <p className="text-yellow-600 italic mb-4">{service.note}</p>
                   )}
                   
-                  <Button 
-                    className="w-full"
+                  <Button
+                    className="w-full h-12 text-base mt-auto"
                     onClick={() => handleBookNow(service)}
                   >
                     Book This Package
@@ -738,7 +812,7 @@ function App() {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5 max-w-7xl mx-auto">
             {workImages.map((image, index) => (
               <motion.div
                 key={image.id}
@@ -746,9 +820,9 @@ function App() {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="group relative overflow-hidden rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300"
+                className={`group relative overflow-hidden rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 ${index === 0 && workImages.length % 2 === 1 ? 'col-span-2' : ''}`}
               >
-                <div className="aspect-square overflow-hidden bg-gray-200">
+                <div className={`${index === 0 && workImages.length % 2 === 1 ? 'aspect-[2/1]' : 'aspect-square'} overflow-hidden bg-gray-200`}>
                   <img
                     src={image.src}
                     alt={image.alt}
@@ -777,33 +851,25 @@ function App() {
             </p>
           </div>
           
-          <div className="max-w-4xl mx-auto">
-            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-              <div className="p-6">
-                <h3 className="text-2xl font-bold text-primary mb-4">
-                  <span className="text-yellow-500">★</span> Keep Your Ride Looking Fresh <span className="text-yellow-500">★</span>
-                </h3>
-                
-                <div className="grid md:grid-cols-2 gap-6 mb-6">
-                  {maintenancePrograms.map((program) => (
-                    <div key={program.id} className="border border-gray-200 rounded-lg p-4 hover:border-primary transition-colors">
-                      <h4 className="text-xl font-bold text-primary mb-2">{program.name}</h4>
-                      {program.description && (
-                        <p className="text-gray-600 mb-2">{program.description}</p>
-                      )}
-                      <p className="text-lg font-bold">{program.price}</p>
-                    </div>
-                  ))}
+          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            {maintenancePrograms.map((program) => (
+              <div key={program.id} className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 flex flex-col hover:-translate-y-1 hover:shadow-xl transition-all">
+                <div className="h-12 w-12 rounded-xl bg-blue-50 flex items-center justify-center mb-4">
+                  <Calendar className="h-6 w-6 text-primary" />
                 </div>
-                
-                <Button 
-                  className="w-full md:w-auto"
-                  onClick={() => setBookingOpen(true)}
+                <h4 className="text-xl font-bold text-primary mb-1">{program.name}</h4>
+                {program.description && (
+                  <p className="text-gray-600 mb-2">{program.description}</p>
+                )}
+                <p className="text-4xl font-extrabold text-gray-900 my-4">{program.price}</p>
+                <Button
+                  className="w-full mt-auto"
+                  onClick={() => handleBookNow(maintenanceOptions.find(option => option.id === 100 + program.id))}
                 >
-                  Sign Up For Maintenance
+                  Sign Up
                 </Button>
               </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
@@ -1033,7 +1099,7 @@ function App() {
       </section>
       
       {/* Footer */}
-      <footer className="bg-primary text-white py-8">
+      <footer className="bg-primary text-white py-8 pb-24 md:pb-8">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center mb-4 md:mb-0">
@@ -1058,10 +1124,22 @@ function App() {
           </div>
         </div>
       </footer>
-      
+
+      {/* Mobile Action Bar */}
+      <div className="md:hidden fixed bottom-0 inset-x-0 z-30 bg-white/95 backdrop-blur border-t border-gray-200 p-3 flex gap-3 shadow-[0_-4px_12px_rgba(0,0,0,0.08)]">
+        <a href="tel:6262246127" className="flex-1">
+          <Button variant="outline" className="w-full h-12 border-primary text-primary">
+            <Phone className="h-4 w-4 mr-2" /> Call
+          </Button>
+        </a>
+        <Button className="flex-1 h-12 bg-yellow-400 text-primary font-bold hover:bg-yellow-300" onClick={() => setBookingOpen(true)}>
+          Book Now
+        </Button>
+      </div>
+
       {/* Booking Dialog */}
       <Dialog open={bookingOpen} onOpenChange={setBookingOpen}>
-        <DialogContent className="sm:max-w-[600px] p-0">
+        <DialogContent className="sm:max-w-[600px] p-0 max-h-[92vh] overflow-y-auto rounded-2xl">
           <DialogHeader className="bg-primary text-white p-6">
             <DialogTitle className="text-2xl font-bold">Book Your Detailing Service</DialogTitle>
             <DialogDescription className="text-blue-100">
@@ -1071,68 +1149,110 @@ function App() {
           
           <div className="p-6">
             <form onSubmit={handleSubmitBooking}>
-              <Tabs defaultValue="service" className="mb-6">
-                <TabsList className="grid grid-cols-3 mb-4">
-                  <TabsTrigger value="service">Service</TabsTrigger>
-                  <TabsTrigger value="details">Details</TabsTrigger>
-                  <TabsTrigger value="confirm">Confirm</TabsTrigger>
+              <Tabs value={bookingStep} onValueChange={setBookingStep} className="mb-6">
+                <TabsList className="grid grid-cols-3 mb-6 h-auto bg-transparent p-0 gap-2">
+                  {[['service', 'Service'], ['details', 'Details'], ['confirm', 'Confirm']].map(([value, label], i) => {
+                    const stepIndex = ['service', 'details', 'confirm'].indexOf(bookingStep);
+                    const done = i < stepIndex;
+                    return (
+                      <TabsTrigger
+                        key={value}
+                        value={value}
+                        disabled={i > stepIndex}
+                        className="flex-col gap-1.5 p-0 bg-transparent shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none disabled:opacity-100"
+                      >
+                        <span className={`h-1.5 w-full rounded-full ${i <= stepIndex ? 'bg-primary' : 'bg-gray-200'}`}></span>
+                        <span className={`flex items-center text-sm font-semibold ${i <= stepIndex ? 'text-primary' : 'text-gray-400'}`}>
+                          {done ? <Check className="h-4 w-4 mr-1" /> : <span className="mr-1">{i + 1}.</span>}
+                          {label}
+                        </span>
+                      </TabsTrigger>
+                    );
+                  })}
                 </TabsList>
-                
-                <TabsContent value="service" className="space-y-4">
+
+                <TabsContent value="service" className="space-y-5 focus-visible:ring-0 focus-visible:ring-offset-0">
                   <div>
-                    <Label htmlFor="service-select">Select Service</Label>
-                    <Select 
-                      value={selectedService ? selectedService.id.toString() : ""} 
-                      onValueChange={(value) => {
-                        const service = services.find(s => s.id === parseInt(value));
-                        setSelectedService(service);
-                      }}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Choose a service" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {services.map(service => (
-                          <SelectItem key={service.id} value={service.id.toString()}>
-                            {service.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="vehicle-size">Vehicle Size</Label>
-                    <Select 
-                      value={vehicleSize} 
-                      onValueChange={setVehicleSize}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select vehicle size" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="small">Small (Sedan, Coupe)</SelectItem>
-                        <SelectItem value="medium">Medium (SUV, Crossover)</SelectItem>
-                        <SelectItem value="large">Large (Truck, Large SUV)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  {selectedService && vehicleSize && (
-                    <div className="bg-blue-50 p-4 rounded-md">
-                      <p className="font-semibold">Selected Package: {selectedService.name}</p>
-                      <p className="text-lg font-bold text-primary">Price: ${calculatePrice()}</p>
+                    <Label className="block mb-2">Choose your package</Label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {services.map(service => {
+                        const active = selectedService?.id === service.id;
+                        return (
+                          <button
+                            type="button"
+                            key={service.id}
+                            onClick={() => setSelectedService(service)}
+                            className={`relative text-left rounded-xl border-2 p-4 transition-all ${active ? 'border-primary bg-blue-50' : 'border-gray-200 hover:border-gray-300'}`}
+                          >
+                            {active && <Check className="absolute top-3 right-3 h-5 w-5 text-primary" />}
+                            <p className="font-bold text-primary">{service.name}</p>
+                            <p className="text-sm text-gray-500">From ${service.pricing.small}</p>
+                          </button>
+                        );
+                      })}
                     </div>
-                  )}
-                  
-                  <div className="flex justify-end">
-                    <Button type="button" onClick={() => document.querySelector('[data-value="details"]').click()}>
-                      Next
+                  </div>
+
+                  <div>
+                    <Label className="block mb-2">Or a maintenance program</Label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {maintenanceOptions.map(option => {
+                        const active = selectedService?.id === option.id;
+                        return (
+                          <button
+                            type="button"
+                            key={option.id}
+                            onClick={() => setSelectedService(option)}
+                            className={`relative text-left rounded-xl border-2 p-4 transition-all ${active ? 'border-primary bg-blue-50' : 'border-gray-200 hover:border-gray-300'}`}
+                          >
+                            {active && <Check className="absolute top-3 right-3 h-5 w-5 text-primary" />}
+                            <p className="font-bold text-primary flex items-center"><Calendar className="h-4 w-4 mr-1.5" />{option.name}</p>
+                            <p className="text-sm text-gray-500">${option.pricing.small} · any vehicle size</p>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label className="block mb-2">Vehicle size</Label>
+                    <div className="grid grid-cols-3 gap-3">
+                      {[['small', 'Small', 'Sedan, Coupe'], ['medium', 'Medium', 'SUV, Crossover'], ['large', 'Large', 'Truck, Large SUV']].map(([value, label, hint]) => {
+                        const active = vehicleSize === value;
+                        return (
+                          <button
+                            type="button"
+                            key={value}
+                            onClick={() => setVehicleSize(value)}
+                            className={`text-center rounded-xl border-2 p-3 transition-all ${active ? 'border-primary bg-blue-50' : 'border-gray-200 hover:border-gray-300'}`}
+                          >
+                            <Car className={`mx-auto mb-1 ${value === 'small' ? 'h-5 w-5' : value === 'medium' ? 'h-6 w-6' : 'h-7 w-7'} ${active ? 'text-primary' : 'text-gray-400'}`} />
+                            <p className="font-bold text-sm text-gray-900">{label}</p>
+                            <p className="text-xs text-gray-500 leading-tight">{hint}</p>
+                            {selectedService && (
+                              <p className="text-sm font-bold text-primary mt-1">${selectedService.pricing[value]}</p>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-2">
+                    <p className="text-gray-600">
+                      {selectedService && vehicleSize ? (
+                        <>Total: <span className="text-2xl font-extrabold text-primary">${calculatePrice()}</span></>
+                      ) : (
+                        <span className="text-sm">Pick a package and size to continue</span>
+                      )}
+                    </p>
+                    <Button type="button" disabled={!selectedService || !vehicleSize} onClick={() => setBookingStep("details")}>
+                      Next <ArrowRight className="h-4 w-4 ml-1" />
                     </Button>
                   </div>
                 </TabsContent>
                 
-                <TabsContent value="details" className="space-y-4">
+                <TabsContent value="details" className="space-y-4 focus-visible:ring-0 focus-visible:ring-offset-0">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="booking-date">Select Date</Label>
@@ -1213,20 +1333,21 @@ function App() {
                     <Button 
                       type="button" 
                       variant="outline"
-                      onClick={() => document.querySelector('[data-value="service"]').click()}
+                      onClick={() => setBookingStep("service")}
                     >
                       Back
                     </Button>
-                    <Button 
+                    <Button
                       type="button"
-                      onClick={() => document.querySelector('[data-value="confirm"]').click()}
+                      disabled={!selectedDate || !selectedTime || !formData.name || !formData.phone || !formData.address}
+                      onClick={() => setBookingStep("confirm")}
                     >
-                      Next
+                      Next <ArrowRight className="h-4 w-4 ml-1" />
                     </Button>
                   </div>
                 </TabsContent>
                 
-                <TabsContent value="confirm" className="space-y-4">
+                <TabsContent value="confirm" className="space-y-4 focus-visible:ring-0 focus-visible:ring-offset-0">
                   <div>
                     <Label htmlFor="vehicle-info">Vehicle Information</Label>
                     <Input 
@@ -1251,13 +1372,18 @@ function App() {
                   </div>
                   
                   {selectedService && vehicleSize && selectedDate && selectedTime && (
-                    <div className="bg-blue-50 p-4 rounded-md space-y-2">
-                      <h4 className="font-bold text-primary">Booking Summary</h4>
-                      <p><span className="font-semibold">Service:</span> {selectedService.name}</p>
-                      <p><span className="font-semibold">Vehicle Size:</span> {vehicleSize.charAt(0).toUpperCase() + vehicleSize.slice(1)}</p>
-                      <p><span className="font-semibold">Price:</span> ${calculatePrice()}</p>
-                      <p><span className="font-semibold">Date:</span> {selectedDate?.toLocaleDateString()}</p>
-                      <p><span className="font-semibold">Time:</span> {selectedTime}</p>
+                    <div className="rounded-xl border border-blue-100 bg-blue-50 p-4">
+                      <h4 className="font-bold text-primary mb-3">Booking Summary</h4>
+                      <div className="grid grid-cols-2 gap-y-2 text-sm">
+                        <span className="text-gray-500">Service</span><span className="font-semibold text-right">{selectedService.name}</span>
+                        <span className="text-gray-500">Vehicle size</span><span className="font-semibold text-right">{vehicleSize.charAt(0).toUpperCase() + vehicleSize.slice(1)}</span>
+                        <span className="text-gray-500">Date</span><span className="font-semibold text-right">{selectedDate?.toLocaleDateString()}</span>
+                        <span className="text-gray-500">Time</span><span className="font-semibold text-right">{selectedTime}</span>
+                      </div>
+                      <div className="flex justify-between items-center border-t border-blue-200 mt-3 pt-3">
+                        <span className="font-semibold">Total</span>
+                        <span className="text-2xl font-extrabold text-primary">${calculatePrice()}</span>
+                      </div>
                     </div>
                   )}
                   
@@ -1279,7 +1405,7 @@ function App() {
                     <Button 
                       type="button" 
                       variant="outline"
-                      onClick={() => document.querySelector('[data-value="details"]').click()}
+                      onClick={() => setBookingStep("details")}
                     >
                       Back
                     </Button>
